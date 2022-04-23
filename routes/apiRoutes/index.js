@@ -1,36 +1,36 @@
 const router = require('express').Router();
-const { notes } = require('../../data/db.json');
+const { data } = require('../../data/db.json');
+const noteLogic = require('../../db/notes.js');
 
-// need to revisit filterByQuery 
+// need to revisit 
 router.get("/notes", (req, res) => {
-    let results = notes;
-    if (req.query) {
-        results = filterByQuery(req.query, results);
-    }
-    res.json(results);
-});
-
-// need to revisit - findById
-router.get("/notes/:id", (req, res) => {
-    const result = findById(req.params.id, notes);
-    if (result) {
-        res.json(result);
-    } else {
-        res.send(404);
-    }
+    noteLogic
+    .getNotes()
+    .then((notes) => {
+        return res.json(notes);
+    })
+    .catch ((error) => res.status(500).json(error));
 });
 
 // need to revisit validateAnimal
 router.post("/notes", (req, res) => {
-  // set id based on what the next index of the array will be
-    req.body.id = notes.length.toString();
-
-    if (!validateAnimal(req.body)) {
-        res.status(400).send("The animal is not properly formatted.");
-    } else {
-        const animal = createNewAnimal(req.body, notes);
-        res.json(animal);
-    }
+    noteLogic
+    .saveNote(req.body)
+    .then((notes) => {
+        return res.json(notes);
+    })
+    .catch ((error) => res.status(500).json(error));
 });
 
 module.exports = router; 
+
+
+// need to revisit - findById - DO NOT NEED TO FIND BY ID _ NO SEARCH 
+// router.get("/notes/:id", (req, res) => {
+//     const result = findById(req.params.id, notes);
+//     if (result) {
+//         res.json(result);
+//     } else {
+//         res.send(404);
+//     }
+// });
